@@ -1,0 +1,29 @@
+{
+  "name": "ts-lambda-boilerplate",
+  "author": "Jon Allen",
+  "version": "1.0.0",
+  "description": "TypeScript Boilerplate for AWS Lambda",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc && copy package*.json dist && cd dist && npm install --omit=dev",
+    "build:minify": "esbuild src/index.ts --outdir=dist --platform=node --bundle --minify",
+    "test": "jest",
+    "test:coverage": "npm run test -- --coverage"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.134",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^18.19.17",
+    "dotenv": "^16.4.5",
+    "esbuild": "^0.20.1",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
