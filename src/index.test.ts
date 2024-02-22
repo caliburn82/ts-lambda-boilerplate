@@ -5,6 +5,6 @@ import logger from './services/logger';
 logger.silent = true;
 
 it('works', async () => {
-  // logger.silent = false;
+  logger.silent = false;
   await handler(['test', { fu: 'bar' }], { awsRequestId: randomUUID() } as any);
 });

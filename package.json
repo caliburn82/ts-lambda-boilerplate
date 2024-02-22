@@ -8,11 +8,12 @@
   "scripts": {
     "build": "tsc && copy package*.json dist && cd dist && npm install --omit=dev",
     "build:minify": "esbuild src/index.ts --outdir=dist --platform=node --bundle --minify",
-    "test": "jest",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:coverage": "npm run test -- --coverage"
   },
   "license": "ISC",
   "dependencies": {
+    "p-queue": "^8.0.1",
     "winston": "^3.11.0"
   },
   "devDependencies": {
