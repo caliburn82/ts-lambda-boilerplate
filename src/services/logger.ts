@@ -1,58 +1,44 @@
-import util from 'util';
-import { createLogger, format, Logger, transports } from 'winston';
+import { createLogger, Logger, transports } from 'winston';
 import * as Transport from 'winston-transport';
 import { LOG } from '../config.js';
-
-const formatArgs = (arg: unknown): string => (
-  util.format(typeof arg === 'string' ? arg : util.inspect(arg, {
-    showHidden: false, depth: null, colors: true, compact: true,
-  }))
-);
+import formats from './logger/formats.js';
 
 const enabledTransports: Transport[] = [
-  new transports.Console({
-    format: format.combine(
-      format.ms(),
-      format.colorize(),
-      format.align(),
-      format.errors({ stack: true }),
-      format.printf((info) => {
-        const splat = Symbol.for('splat');
-        const suffix = info[splat] ? `: ${formatArgs(info[splat][0])}` : '';
-
-        return `${info.level}: ${info.ms}: ${info.message}${suffix}`;
-      }),
-    ),
-  }),
+  new transports.Console({ format: formats[LOG.format] ?? formats.json }),
 ];
 
-interface LoggerWithStart extends Logger {
-  start: (id?: string) => void;
-  finish: () => void;
+if (LOG.driver === 'datadog') {
+  enabledTransports.push(new transports.Http({
+    host: 'http-intake.logs.datadoghq.com',
+    path: `/api/v2/logs?dd-api-key=${LOG.apiKey}&ddsource=nodejs&hostname=${LOG.hostName}&service=${LOG.serviceName}&ddtags=env:${LOG.env},team:php`,
+    ssl: true,
+    format: formats.json,
+  }));
 }
+
+type ExtendedLogger = Logger & { start: (id?: string) => void; finish: () => void; };
 
 const logger = createLogger({
   level: LOG.level,
   exitOnError: false,
   transports: enabledTransports,
   exceptionHandlers: enabledTransports,
-}) as LoggerWithStart;
+}) as ExtendedLogger;
 
 let requestId: string | undefined;
 
-// @ts-ignore
-logger.start = (id?: string): void => {
+logger.start = (id?: string) => {
+  logger.defaultMeta = { trace: { cId: Date.now() % 1000 } };
+
   requestId = id;
-  if (requestId) {
-    logger.defaultMeta = { cid: requestId.split('-').pop()! };
-    logger.info(`START RequestId: ${requestId} Version: ${LOG.lambdaVersion}`);
-  }
-}
+  if (!requestId) return;
+
+  logger.defaultMeta.trace.requestId = requestId;
+  if (LOG.driver === 'datadog') logger.info(`START RequestId: ${requestId}`);
+};
 
 logger.finish = () => {
-  if (requestId) logger.info(`END RequestId: ${requestId}`);
+  if (requestId && LOG.driver === 'datadog') logger.info(`END RequestId: ${requestId}`);
 };
 
 export default logger;
-
-
