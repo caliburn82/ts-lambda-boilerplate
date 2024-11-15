@@ -9,3 +9,8 @@ export const LOG = {
   serviceName: env.LOG_SERVICE_NAME || 'tester',
   env: env.LOG_ENV || 'uat',
 };
+
+export const PQUEUE = {
+  repeats: 100,
+  concurrency: 5,
+}

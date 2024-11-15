@@ -1,18 +1,25 @@
 import { Context } from 'aws-lambda';
 import PQueue from 'p-queue';
+import { PQUEUE } from './config.js';
+import random from './helpers/random.js';
 import sleep from './helpers/sleep.js';
-import logger from './services/logger.js';
+import logger from './services/logger/logger.js';
 
 export async function handler(event: any, context?: Context): Promise<any> {
   logger.start(context?.awsRequestId);
   logger.debug('Event received', { event });
 
-  const queue = new PQueue({ concurrency: 2 });
+  logger.info('p-queue settings', PQUEUE);
 
-  for (let i = 0; i < 10; i++) {
+  const queue = new PQueue({ concurrency: PQUEUE.concurrency });
+
+  for (let i = 0; i < PQUEUE.repeats; i++) {
     queue.add(async () => {
       logger.debug('Queueing', { i });
-      await sleep(100);
+
+      const delay = random(100, 500);
+      await sleep(delay);
+
       logger.debug('Finished', { i });
     });
   }

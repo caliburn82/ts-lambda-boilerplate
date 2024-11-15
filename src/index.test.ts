@@ -1,10 +1,25 @@
-import { randomUUID } from 'node:crypto';
-import { handler } from './index';
-import logger from './services/logger';
+import { jest } from '@jest/globals';
+import { PQUEUE } from './config.js';
+import random from './helpers/random.js';
+import { second } from './helpers/toMs.js';
+import { handler } from './index.js';
+import * as r from './helpers/random.js';
+import logger from './services/logger/logger.js';
+
+console.log(r);
+jest.spyOn(r, 'default').mockReturnValue(100);
+
+console.log(random(100, 500));
+
+jest.setTimeout(second * 30);
 
 logger.silent = true;
 
 it('works', async () => {
   logger.silent = false;
-  await handler(['test', { fu: 'bar' }], { awsRequestId: randomUUID() } as any);
+
+  PQUEUE.repeats = 5;
+  PQUEUE.concurrency = 2;
+
+  await handler({ test: 'event' });
 });

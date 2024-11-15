@@ -1,7 +1,7 @@
 import { createLogger, Logger, transports } from 'winston';
 import * as Transport from 'winston-transport';
-import { LOG } from '../config.js';
-import formats from './logger/formats.js';
+import { LOG } from '../../config.js';
+import formats from './formats.js';
 
 const enabledTransports: Transport[] = [
   new transports.Console({ format: formats[LOG.format] ?? formats.json }),
