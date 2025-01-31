@@ -4,7 +4,7 @@ import random from './helpers/random.js';
 import { second } from './helpers/toMs.js';
 import { handler } from './index.js';
 import * as r from './helpers/random.js';
-import logger from './services/logger/logger.js';
+import logger from './services/logger.js';
 
 console.log(r);
 jest.spyOn(r, 'default').mockReturnValue(100);

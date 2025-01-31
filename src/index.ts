@@ -3,7 +3,7 @@ import PQueue from 'p-queue';
 import { PQUEUE } from './config.js';
 import random from './helpers/random.js';
 import sleep from './helpers/sleep.js';
-import logger from './services/logger/logger.js';
+import logger from './services/logger.js';
 
 export async function handler(event: any, context?: Context): Promise<any> {
   logger.start(context?.awsRequestId);
